@@ -1,21 +1,22 @@
 import os
 import random
-import telegram
-import redis
-from procces_quiz_file import quiz
-from telegram.ext import (
-    Dispatcher,
-    Updater,
-    CommandHandler,
-    MessageHandler,
-    Filters,
-    CallbackQueryHandler,
-    ConversationHandler,
-)
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from dotenv import load_dotenv
 
-redis_connect = redis.Redis("localhost", port=6379, db=0, decode_responses=True)
+import redis
+import telegram
+from dotenv import load_dotenv
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import (CallbackQueryHandler, CommandHandler,
+                          ConversationHandler, Dispatcher, Filters,
+                          MessageHandler, Updater)
+
+from procces_quiz_file import get_questions_answers
+
+redis_connect = redis.Redis(
+    host=os.environ["REDIS_HOST"],
+    port=int(os.environ["REDIS_PORT"]),
+    db=int(os.environ["REDIS_TG_DB"]),
+    decode_responses=True,
+)
 
 
 NEW_QUESTION, ANSWER = range(2)
@@ -76,7 +77,7 @@ def main():
 
     updater = Updater(tg_token, use_context=True)
     telegram_dispatcher = updater.dispatcher
-    telegram_dispatcher.bot_data["quiz"] = quiz()
+    telegram_dispatcher.bot_data["quiz"] = get_questions_answers()
     telegram_dispatcher.add_handler(CommandHandler("start", start))
     conv_handler = ConversationHandler(
         entry_points=[

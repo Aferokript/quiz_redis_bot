@@ -1,7 +1,7 @@
 import re
 
 
-def quiz():
+def get_questions_answers():
     quest_and_answer = {}
 
     with open("quiz-questions/1vs1200.txt", "r", encoding="KOI8-R") as file:
@@ -9,22 +9,24 @@ def quiz():
 
     question_part = re.split(r"\n\s*\n", content)
 
-    for i, q in enumerate(question_part):
-        q = q.strip()
-        if not q.lower().startswith("вопрос"):
+    for index, questions in enumerate(question_part):
+        question = questions.strip()
+        if not question.lower().startswith("вопрос"):
             continue
 
-        q_text = re.sub(r"^\s*Вопрос\s*\d+\s*:\s*", "", q, flags=re.IGNORECASE).strip()
-        q_text = re.sub(r"\s*\n\s*", " ", q_text).strip()
+        question_text = re.sub(
+            r"^\s*Вопрос\s*\d+\s*:\s*", "", question, flags=re.IGNORECASE
+        ).strip()
+        question_text = re.sub(r"\s*\n\s*", " ", question_text).strip()
 
-        if i + 1 < len(question_part):
-            nxt = question_part[i + 1].strip()
-            if nxt.lower().startswith("ответ"):
+        if index + 1 < len(question_part):
+            next_question = question_part[index + 1].strip()
+            if next_question.lower().startswith("ответ"):
                 answer = re.sub(
-                    r"^\s*Ответ\s*:\s*", "", nxt, flags=re.IGNORECASE
+                    r"^\s*Ответ\s*:\s*", "", next_question, flags=re.IGNORECASE
                 ).strip()
                 answer = re.sub(r"\s*\n\s*", " ", answer).strip()
-                if q_text and answer:
-                    quest_and_answer[q_text] = answer
+                if question_text and answer:
+                    quest_and_answer[question_text] = answer
 
     return quest_and_answer
